@@ -11,6 +11,8 @@ import DuoDragDrop, {
 } from "@jamsch/react-native-duo-drag-drop";
 import { GestureHandlerRootView, ScrollView } from "react-native-gesture-handler";
 import { withSpring, withTiming } from "react-native-reanimated";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 const customAnimatedStyle: DuoAnimatedStyleWorklet = (style, isGestureActive) => {
   "worklet";
@@ -30,6 +32,38 @@ const customAnimatedStyle: DuoAnimatedStyleWorklet = (style, isGestureActive) =>
   return style;
 };
 
+const fonts = {
+  "SFProDisplay-Bold": require("./assets/fonts/SFPro/SF-Pro-Display-Bold.otf"),
+  "SFProDisplay-Semibold": require("./assets/fonts/SFPro/SF-Pro-Display-Semibold.otf"),
+  "SFProDisplay-Regular": require("./assets/fonts/SFPro/SF-Pro-Display-Regular.otf"),
+  "SFProDisplay-Medium": require("./assets/fonts/SFPro/SF-Pro-Display-Medium.otf"),
+  "Nunito-Bold": require("./assets/fonts/Nunito/Nunito-Bold.ttf"),
+  "Nunito-Regular": require("./assets/fonts/Nunito/Nunito-Regular.ttf"),
+};
+
+export type practice_sentence = {
+  english: string;
+  chinese: string;
+  pinyin: string;
+  english_words?: string[];
+  chinese_words?: string[];
+};
+
+const sentences: practice_sentence[] = [
+  {
+    english: "Little Li is a good student. He is smart and hardworking.",
+    chinese: "小李是一个好学生。他又聪明又用功。", // : 很好的学生。
+
+    pinyin: "Xiǎo Lǐ shì yīgè hǎo xuéshēng／hěn hǎo de xuéshēng. Tā yòu cōngming yòu yònggōng.",
+  },
+  {
+    english: "I heard he does homework for four hours every night.",
+    chinese: "我听说他每天晚上做功课做四个钟头。", // ／他每天晚上做四个钟头的功课
+    pinyin:
+      "Wǒ tīngshuō tā měitiān wǎnshàng zuò gōngkè zuò sì gè zhōnghòu／tā měitiān wǎnshàng zuò sì gè zhōnghòu de gōngkè.",
+  },
+];
+
 export default function App() {
   const [rtl, setRtl] = useState(false);
   const [gradeWords, setGradeWords] = useState<boolean[]>([]);
@@ -39,11 +73,23 @@ export default function App() {
   const duoDragDropRef = useRef<DuoDragDropRef>(null);
   const [log, setLog] = useState<string[]>([]);
 
-  const words = ["Juan", "She", "apples", "today", "with", "eats", "her", "another"];
+  const s = sentences[Math.floor(Math.random() * sentences.length)];
+  const chinese_words = s.chinese.split("");
+  const english_words = s.chinese.split(" ");
+  const [words, setWords] = useState(chinese_words.sort((a, b) => Math.random() - 0.5));
+
+  const onSubmit = () => {
+    if (gradeWords.length > 0) {
+      setGradeWords([]);
+    } else {
+      setGradeWords([true, false, true, false, false, true, false, false]);
+    }
+  };
 
   return (
     <GestureHandlerRootView style={styles.container}>
       <SafeAreaView style={styles.container}>
+        <Header percent={10} sentence={s.english} />
         <ScrollView>
           <View style={styles.dragDropContainer}>
             <DuoDragDrop
@@ -108,7 +154,7 @@ export default function App() {
                 }}
               />
             </View>
-            <View style={{ marginTop: 10 }}>
+            {/* <View style={{ marginTop: 10 }}>
               <Button title={`Gestures disabled: ${gesturesDisabled}`} onPress={() => setGesturesDisabled((s) => !s)} />
             </View>
             <View style={{ marginTop: 10 }}>
@@ -116,13 +162,13 @@ export default function App() {
                 title={`Use custom animations: ${shouldUseCustomWorket}`}
                 onPress={() => setShouldUseCustomWorket((s) => !s)}
               />
-            </View>
-            <View style={{ marginTop: 10 }}>
+            </View> */}
+            {/* <View style={{ marginTop: 10 }}>
               <Button title={`Right-To-Left: ${rtl}`} onPress={() => setRtl((s) => !s)} />
-            </View>
+            </View> */}
           </View>
         </ScrollView>
-        <View style={styles.logContainer}>
+        {/* TODO: <View style={styles.logContainer}>
           <Text style={styles.debugLogText}>EVENT LOG</Text>
           <ScrollView>
             {log.map((l, i) => (
@@ -130,7 +176,8 @@ export default function App() {
             ))}
             {log.length === 0 && <Text>No events</Text>}
           </ScrollView>
-        </View>
+        </View> */}
+        <Footer submit={onSubmit} />
       </SafeAreaView>
     </GestureHandlerRootView>
   );
